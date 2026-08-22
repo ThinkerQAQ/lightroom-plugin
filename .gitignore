@@ -1,0 +1,17 @@
+# Lightroom plug-in runtime output (may contain local paths and photo names)
+*.log
+AutoHDR-v2-last-run.tsv
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.swp
+*.tmp
+
+# Local build output
+bin/
+obj/
+*.pdb
