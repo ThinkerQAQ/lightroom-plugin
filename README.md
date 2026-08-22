@@ -2,7 +2,7 @@
 
 一组面向 Windows 版 Adobe Lightroom Classic 的本地增效工具，包含自动包围曝光 HDR 合并和合并原片清理两个插件。
 
-> 这两个插件会操作照片选择、调用 Lightroom 原生命令，并生成本地日志。首次使用前请备份 Lightroom 目录，并先用少量测试照片验证流程。
+> 首次使用前请备份 Lightroom 目录，并先用少量测试照片验证流程。
 
 ## 插件
 
@@ -16,12 +16,16 @@
 - [`LightroomAutoHDRv2.lrplugin/README.txt`](LightroomAutoHDRv2.lrplugin/README.txt)
 - [`LightroomMergeCleanup.lrplugin/README.txt`](LightroomMergeCleanup.lrplugin/README.txt)
 
+## 下载
+
+从 [Releases](https://github.com/ThinkerQAQ/lightroom-plugin/releases/latest) 下载最新的插件组合包并解压。
+
 ## 系统要求
 
 - Windows
 - Adobe Lightroom Classic（插件声明最低 Lightroom SDK 6.0）
 - 使用 Auto HDR 时，Lightroom 必须位于前台
-- 插件所在完整路径不要包含空格；当前辅助程序的启动方式对含空格路径不可靠
+- 插件所在完整路径不能包含空格
 
 ## 安装
 
@@ -64,25 +68,6 @@ Modules/
 ```
 
 插件只创建“待删除原片”收藏集，不会在扫描阶段删除文件。必须人工复核后，再使用 Lightroom 的删除命令和确认框完成删除。
-
-## 构建辅助程序
-
-`LightroomAutoHDRv2.lrplugin/AutoHDRInput.exe` 是由同目录的 `AutoHDRInput.cs` 构建的 Windows 辅助程序，用于在确认 Lightroom 位于前台后发送 `Ctrl+Shift+H`。仓库中附带的可执行文件未进行数字签名。
-
-当前文件 SHA-256：
-
-```text
-CDE906AC8C8DD759A1D0525AB15AAFB940767A34A3388F38A54A153FF4CDA2C9
-```
-
-## 运行产物与隐私
-
-以下文件可能包含本机用户名、路径、照片文件名或处理记录，已通过 `.gitignore` 排除，不应提交：
-
-- `*.log`
-- `AutoHDR-v2-last-run.tsv`
-
-提交问题前请先审查并脱敏日志，不要公开原始照片路径或其他个人信息。
 
 ## 许可证
 
