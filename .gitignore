@@ -14,4 +14,5 @@ Desktop.ini
 # Local build output
 bin/
 obj/
+dist/
 *.pdb

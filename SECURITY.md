@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-This is a private repository. Report suspected vulnerabilities directly to the repository owner through a private GitHub channel. Do not open a public issue containing exploit details, local paths, photo names, logs, credentials, or other personal data.
+Report suspected vulnerabilities through GitHub's private vulnerability reporting feature. Do not open a public issue containing exploit details, local paths, photo names, logs, credentials, or other personal data.
 
 Include the affected plugin and version, expected and observed behavior, minimal reproduction steps, and a redacted log excerpt when useful.
 
