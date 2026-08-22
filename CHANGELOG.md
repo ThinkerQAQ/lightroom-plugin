@@ -2,6 +2,11 @@
 
 All notable bundle releases are documented in this file. Individual plug-in versions remain defined in each plug-in's `Info.lua`.
 
+## [v2026.08.22.1] - 2026-08-22
+
+- Relicense the project under the MIT License.
+- Rebuild the public bundle so the archive contains the MIT license text.
+
 ## [v2026.08.22] - 2026-08-22
 
 Initial public bundle release containing:
