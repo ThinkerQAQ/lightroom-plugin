@@ -2,6 +2,13 @@
 
 All notable bundle releases are documented in this file. Individual plug-in versions remain defined in each plug-in's `Info.lua`.
 
+## [v2026.10.31] - 2026-10-31
+
+- Add English and Simplified Chinese user interface to both plug-ins using Lightroom localization dictionaries.
+- Rewrite installation and safety documentation in English and Chinese.
+- Automatic Bracketed HDR 2.1.2 (build 7); Merged Source Cleanup 1.1.1 (build 3).
+- No changes to merge or cleanup matching logic.
+
 ## [v2026.08.22.2] - 2026-08-22
 
 - Simplify the public README and add a direct link to the latest release.

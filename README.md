@@ -1,74 +1,46 @@
-# Lightroom Plugin
+# Lightroom Classic HDR Tools
 
-一组面向 Windows 版 Adobe Lightroom Classic 的本地增效工具，包含自动包围曝光 HDR 合并和合并原片清理两个插件。
+[简体中文](README.zh-CN.md)
 
-> 首次使用前请备份 Lightroom 目录，并先用少量测试照片验证流程。
+Two Windows plug-ins for Adobe Lightroom Classic: one merges bracketed RAW/DNG photos into HDR DNGs, and the other prepares source photos for manual review after a merge. The plug-ins work locally and do not upload photos.
 
-## 插件
-
-| 插件 | 版本 | 作用 |
+| Plug-in | Version | What it does |
 | --- | --- | --- |
-| `LightroomAutoHDRv2.lrplugin` | 2.1.1 | 识别选中照片中的包围曝光序列，逐组调用 Lightroom 的无预览 HDR 合并。 |
-| `LightroomMergeCleanup.lrplugin` | 1.1.0 | 识别合并结果和对应原片，创建“待删除原片”收藏集供人工复核。 |
+| Automatic Bracketed HDR | 2.1.2 | Detects bracketed groups in the selection and invokes Lightroom's HDR merge, one group at a time. |
+| Merged Source Cleanup | 1.1.1 | Finds source photos associated with merged results and puts candidates in a review collection. |
 
-插件自身的详细操作说明分别见：
+**Scope:** Windows and Lightroom Classic with SDK 6.0 or later. This is not a plug-in for cloud-based Lightroom. The HDR helper uses a Windows executable and requires Lightroom to remain in the foreground. The full plug-in path must contain no spaces. English and Simplified Chinese UI are included; other Lightroom languages fall back to English.
 
-- [`LightroomAutoHDRv2.lrplugin/README.txt`](LightroomAutoHDRv2.lrplugin/README.txt)
-- [`LightroomMergeCleanup.lrplugin/README.txt`](LightroomMergeCleanup.lrplugin/README.txt)
+## Download and install
 
-## 下载
+1. Download the ZIP from the [latest Release](https://github.com/ThinkerQAQ/lightroom-plugin/releases/latest). Download the asset ZIP, not GitHub's automatically generated source archive: the latter might not be the intended installation package.
+2. Extract both `.lrplugin` folders to a path without spaces, such as `%APPDATA%\Adobe\Lightroom\Modules\`. Keep the folders next to each other so cleanup can read Auto HDR's exact mapping file.
+3. In Lightroom Classic, open **File > Plug-in Manager > Add** and add each `.lrplugin` folder separately. Restart Lightroom if the menu language does not update after upgrading.
+4. Back up your catalog and source photos, then try a small bracketed set first.
 
-从 [Releases](https://github.com/ThinkerQAQ/lightroom-plugin/releases/latest) 下载最新的插件组合包并解压。
+The downloaded bundle includes `AutoHDRInput.exe`. Windows may warn about an unsigned executable; inspect the source `AutoHDRInput.cs` and compile it yourself if you prefer. The executable only sends Lightroom's HDR shortcut to the foreground Lightroom process. It is required for automatic merging.
 
-## 系统要求
+## Merge bracketed HDR photos
 
-- Windows
-- Adobe Lightroom Classic（插件声明最低 Lightroom SDK 6.0）
-- 使用 Auto HDR 时，Lightroom 必须位于前台
-- 插件所在完整路径不能包含空格
+1. Manually merge one set in Lightroom and choose your desired auto-align, auto-tone, deghosting, and stacking options. The no-preview merge uses those settings.
+2. In Library Grid, select RAW/DNG photos from the same folder. Choose **Library > Plug-in Extras > [v2] Detect and merge bracketed HDR DNGs…** (the menu appears in Chinese when Lightroom's language is Simplified Chinese).
+3. Review the detected groups and start. Keep Lightroom in the foreground; do not use the keyboard or mouse until the run ends. Stop any other import, export, or HDR work first.
 
-## 安装
+A group contains 2–9 photos with matching folder, camera, focal length, and dimensions, no more than 2 seconds between adjacent shots, and at least 1 EV exposure span. Videos, virtual copies, other formats, and files already named as HDR/Pano are excluded. Each group has a 180-second DNG wait; failure stops subsequent submissions. Source photos are never deleted by this plug-in. The most recent successful DNG-to-source mapping is stored in `AutoHDR-v2-last-run.tsv` beside the plug-in; logs are `AutoHDR-v2.log` and `AutoHDRInput.log`.
 
-1. 将两个 `.lrplugin` 目录复制到同一个父目录。建议使用：
+## Review merged source photos
 
-   ```text
-   %APPDATA%\Adobe\Lightroom\Modules\
-   ```
+1. Select a merged HDR/Pano result and **all** its RAW source photos together in Library Grid. For a batch, select all photos in the current source when appropriate.
+2. Choose **Library > Plug-in Extras > Scan merges and source photos (stacks/AutoHDR)…**. Review the counts, evidence, and list of merged files that will be kept.
+3. The plug-in creates a review collection under the existing collection set and attempts to select its candidate source photos. **Check every thumbnail and selection yourself.** The scan does not delete files.
+4. Only if the selection is correct, press **Ctrl+Alt+Shift+Backspace** (Backspace, not Delete) and confirm **Delete from Disk** in Lightroom. This final action is yours and moves files to the Windows Recycle Bin.
 
-2. 在 Lightroom Classic 中打开“文件 > 增效工具管理器”。
-3. 选择“添加”，分别选中两个 `.lrplugin` 目录。
-4. 先用少量测试照片验证插件行为。
+The scan checks real folder stacks, Auto HDR's exact mapping, then constrained filename and metadata matches. Incomplete or ambiguous matches are skipped. The collection set retains its existing Chinese name after upgrading so previous review collections remain together. See `MergeCleanup.log` for details.
 
-两个插件应保持相邻目录结构，以便清理助手读取 Auto HDR 生成的精确映射记录：
+## Upgrading and troubleshooting
 
-```text
-Modules/
-├── LightroomAutoHDRv2.lrplugin/
-└── LightroomMergeCleanup.lrplugin/
-```
+Replace both plug-in folders together while Lightroom is closed. Keep your catalog and photo files untouched. Logs and the last-run mapping live inside the plug-in folders, so preserve them before replacing folders if you need those records for cleanup; otherwise the exact mapping for an earlier HDR run will be unavailable and cleanup will rely on other evidence. Do not install the plug-in under a path containing spaces. If the HDR command fails, check whether Lightroom is in the foreground and inspect the two Auto HDR logs. If cleanup finds no safe candidates, select the result and every source photo, then inspect `MergeCleanup.log`.
 
-## 使用提示
+## License
 
-### 自动包围曝光 HDR
-
-先手动合并一组照片并设置 Lightroom 的自动对齐、自动色调、去除重影和创建堆栈选项。之后在图库网格中选中待处理照片，运行：
-
-```text
-图库 > 增效工具额外功能 > [v2] 自动识别并逐组合成 HDR DNG…
-```
-
-处理期间请保持 Lightroom 在前台，不要操作键盘或鼠标。该插件只生成 DNG，不删除源照片。
-
-### 合并原片清理
-
-在当前来源中同时选中合并结果和对应原片，运行：
-
-```text
-图库 > 增效工具额外功能 > 扫描合并结果与原片（堆栈/AutoHDR）…
-```
-
-插件只创建“待删除原片”收藏集，不会在扫描阶段删除文件。必须人工复核后，再使用 Lightroom 的删除命令和确认框完成删除。
-
-## 许可证
-
-本项目采用 [MIT License](LICENSE)。你可以使用、修改、分发及商用本软件，但必须保留原始版权与许可证声明。
+[MIT](LICENSE). This is an independent community project and is not affiliated with Adobe. Adobe and Lightroom are trademarks of Adobe Inc.
