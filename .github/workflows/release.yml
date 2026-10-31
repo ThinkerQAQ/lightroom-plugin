@@ -14,7 +14,7 @@ jobs:
       - name: Build and package from source
         shell: powershell
         run: |
-          & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe /out:LightroomAutoHDRv2.lrplugin/AutoHDRInput.exe LightroomAutoHDRv2.lrplugin/AutoHDRInput.cs
+          & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe "/out:$PWD\LightroomAutoHDRv2.lrplugin\AutoHDRInput.exe" "$PWD\LightroomAutoHDRv2.lrplugin\AutoHDRInput.cs"
           if ($LASTEXITCODE -ne 0) { throw 'C# helper compilation failed' }
           New-Item -ItemType Directory -Path staging,dist | Out-Null
           Copy-Item LICENSE,README.md,README.zh-CN.md,CHANGELOG.md,SECURITY.md staging

@@ -32,5 +32,5 @@ jobs:
       - name: Compile helper from published source
         shell: powershell
         run: |
-          & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe "/out:$env:RUNNER_TEMP\AutoHDRInput.exe" LightroomAutoHDRv2.lrplugin/AutoHDRInput.cs
+          & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe "/out:$env:RUNNER_TEMP\AutoHDRInput.exe" "$PWD\LightroomAutoHDRv2.lrplugin\AutoHDRInput.cs"
           if ($LASTEXITCODE -ne 0) { throw 'C# helper compilation failed' }
