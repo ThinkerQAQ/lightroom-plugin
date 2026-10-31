@@ -1,0 +1,36 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  source:
+    name: Check plugin sources
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check Lua syntax
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y lua5.4
+          find . -name '*.lua' -print0 | xargs -0 -n 1 luac -p
+      - name: Verify distribution inputs
+        run: |
+          test -s LICENSE
+          test -s README.md
+          test -s README.zh-CN.md
+          test -s LightroomAutoHDRv2.lrplugin/TranslatedStrings_zh_cn.txt
+          test -s LightroomMergeCleanup.lrplugin/TranslatedStrings_zh_cn.txt
+          git diff --check
+  helper:
+    name: Compile Windows helper
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Compile helper from published source
+        shell: powershell
+        run: |
+          & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe "/out:$env:RUNNER_TEMP\AutoHDRInput.exe" LightroomAutoHDRv2.lrplugin/AutoHDRInput.cs
+          if ($LASTEXITCODE -ne 0) { throw 'C# helper compilation failed' }

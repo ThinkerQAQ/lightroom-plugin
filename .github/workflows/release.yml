@@ -1,0 +1,34 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build and package from source
+        shell: powershell
+        run: |
+          & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe /out:LightroomAutoHDRv2.lrplugin/AutoHDRInput.exe LightroomAutoHDRv2.lrplugin/AutoHDRInput.cs
+          if ($LASTEXITCODE -ne 0) { throw 'C# helper compilation failed' }
+          New-Item -ItemType Directory -Path staging,dist | Out-Null
+          Copy-Item LICENSE,README.md,README.zh-CN.md,CHANGELOG.md,SECURITY.md staging
+          Copy-Item LightroomAutoHDRv2.lrplugin,LightroomMergeCleanup.lrplugin staging -Recurse
+          Get-ChildItem staging -Recurse -File | Where-Object { $_.Extension -eq '.log' -or $_.Name -match 'mapping|last.run' } | Remove-Item
+          $archive = "lightroom-plugin-$env:GITHUB_REF_NAME.zip"
+          Compress-Archive -Path staging/* -DestinationPath "dist/$archive"
+          $hash = (Get-FileHash "dist/$archive" -Algorithm SHA256).Hash.ToLower()
+          "$hash  $archive" | Set-Content -Encoding ascii dist/SHA256SUMS.txt
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [System.IO.Compression.ZipFile]::OpenRead("$PWD/dist/$archive")
+          try { if ('LICENSE' -notin $zip.Entries.FullName) { throw 'Missing LICENSE' } } finally { $zip.Dispose() }
+      - name: Publish verified archive
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --generate-notes
