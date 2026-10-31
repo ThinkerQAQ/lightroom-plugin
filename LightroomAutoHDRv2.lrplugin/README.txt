@@ -1,4 +1,7 @@
-自动包围曝光 HDR v2.1.1（Windows / Lightroom Classic）
+English instructions: ../README.md
+中文完整说明：../README.zh-CN.md
+
+自动包围曝光 HDR v2.1.2（Windows / Lightroom Classic）
 =====================================================
 
 功能
@@ -43,7 +46,7 @@
 
 安全限制
 --------
-- v2.1.1 只生成 DNG，不删除源照片。
+- v2.1.2 只生成 DNG，不删除源照片。
 - Lightroom SDK 没有公开 HDR 合并接口，本插件通过 Ctrl+Shift+H 调用
   Lightroom 自己的合并功能，因此提交快捷键时 Lightroom 必须处于前台。
 - 开始前请等待其他导入、导出或 HDR 任务完成，避免把其他新 DNG 误认为
@@ -51,7 +54,7 @@
 
 版本记录
 --------
-v2.1.1：每组合成成功后写入 DNG→源片精确清单，并记录清单重置/追加结果。
+v2.1.2：每组合成成功后写入 DNG→源片精确清单，并记录清单重置/追加结果。
 v2.1.0：加入自动识别、逐组选择、原生快捷键提交、新 DNG 轮询、失败即停和
 关键日志。
 v2.0.3：修正 64 位 Win32 INPUT 联合体布局，解决 SendInput 错误 87。

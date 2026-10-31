@@ -233,7 +233,7 @@ local function groupSummary(groups)
     for i = 1, shown do
         local group = groups[i]
         lines[#lines + 1] = string.format(
-            '%d. %d 张，%.1f EV：%s … %s',
+            LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text013=%d. %d photos, %.1f EV: %s ... %s',
             i,
             #group,
             evSpan(group),
@@ -242,7 +242,7 @@ local function groupSummary(groups)
         )
     end
     if #groups > shown then
-        lines[#lines + 1] = string.format('…另有 %d 组', #groups - shown)
+        lines[#lines + 1] = string.format(LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text014=...and %d more groups', #groups - shown)
     end
     return photoCount, table.concat(lines, '\n')
 end
@@ -333,7 +333,7 @@ local function waitForNewDng(folder, before, progress, index, total)
         end
         local elapsed = LrDate.currentTime() - started
         progress:setCaption(string.format(
-            '第 %d/%d 组：等待 DNG（%.0f 秒）',
+            LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text015=Group %d/%d: waiting for DNG (%.0f s)',
             index,
             total,
             elapsed
@@ -349,23 +349,23 @@ end
 
 local function helperExitReason(exitCode)
     if exitCode == 20 then
-        return '没有找到 Lightroom 进程'
+        return LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text016=Lightroom process not found'
     elseif exitCode == 22 then
-        return 'Lightroom 不是当前前台窗口'
+        return LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text017=Lightroom is not the foreground window'
     elseif exitCode == 23 then
-        return 'Windows SendInput 未完整发送快捷键'
+        return LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text018=Windows SendInput did not send the full shortcut'
     end
-    return 'Windows 辅助程序发生其他异常'
+    return LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text019=Windows helper encountered another error'
 end
 
 local function main()
     local catalog = LrApplication.activeCatalog()
     local selected = catalog:getTargetPhotos() or {}
-    log('RUN_START plugin=2.1.1 selected=%d catalog=%s', #selected, tostring(catalog:getPath()))
+    log('RUN_START plugin=2.1.2 selected=%d catalog=%s', #selected, tostring(catalog:getPath()))
 
     if #selected < 2 then
         log('RUN_ABORT reason=too_few_selected')
-        LrDialogs.message('自动包围曝光 HDR v2.1.1', '请先选中需要扫描的 RAW/DNG 照片，至少 2 张。', 'info')
+        LrDialogs.message(LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text020=Automatic Bracketed HDR v2.1.2', LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text021=Select at least two RAW/DNG photos to scan.', 'info')
         return
     end
 
@@ -390,9 +390,9 @@ local function main()
     if #groups == 0 then
         log('RUN_ABORT reason=no_groups')
         LrDialogs.message(
-            '没有识别到包围曝光组',
+            LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text022=No bracketed groups found',
             string.format(
-                '识别要求：同一文件夹、相机、焦距和尺寸一致；相邻拍摄不超过 %.1f 秒；曝光跨度至少 %.1f EV；每组 %d–%d 张。\n\n元数据不完整：%d 张；非源 RAW/DNG：%d 张。\n\n日志：%s',
+                LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text023=Requirements: same folder, camera, focal length, and dimensions; at most %.1f seconds between adjacent shots; at least %.1f EV exposure span; %d-%d photos per group.^n^nIncomplete metadata: %d; non-source RAW/DNG: %d.^n^nLog: %s',
                 MAX_GAP_SECONDS,
                 MIN_EV_SPAN,
                 MIN_GROUP_SIZE,
@@ -408,13 +408,13 @@ local function main()
 
     local photoCount, summary = groupSummary(groups)
     local confirmation = string.format(
-        '识别到 %d 组、共 %d 张源照片：\n\n%s\n\n将逐组执行：选择照片 → Ctrl+Shift+H → 等待新 DNG → 下一组。单组最长等待 %.0f 秒。\n\n开始前请确认 Lightroom 当前没有其他导入、导出或 HDR 任务。运行期间保持 Lightroom 在前台，不要操作键盘和鼠标。源照片不会被删除。',
+        LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text024=Found %d groups containing %d source photos:^n^n%s^n^nFor each group: select photos -> Ctrl+Shift+H -> wait for a new DNG. Maximum wait: %.0f seconds per group.^n^nFinish other Lightroom import, export, and HDR tasks first. Keep Lightroom in the foreground and do not use the keyboard or mouse while this runs. Source photos are not deleted.',
         #groups,
         photoCount,
         summary,
         DNG_TIMEOUT_SECONDS
     )
-    if LrDialogs.confirm('自动识别并逐组合成 HDR DNG v2.1.1', confirmation, '开始合成', '取消') ~= 'ok' then
+    if LrDialogs.confirm(LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text025=Detect and merge bracketed HDR DNGs v2.1.2', confirmation, LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text026=Start merge', LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text006=Cancel') ~= 'ok' then
         log('RUN_ABORT reason=user_canceled_confirmation')
         return
     end
@@ -422,7 +422,7 @@ local function main()
     resetManifest()
     LrTasks.sleep(0.5)
     local helper = LrPathUtils.child(_PLUGIN.path, 'AutoHDRInput.exe')
-    local progress = LrProgressScope({ title = '自动包围曝光 HDR v2.1.1' })
+    local progress = LrProgressScope({ title = LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text020=Automatic Bracketed HDR v2.1.2' })
     progress:setCancelable(true)
     local submitted = 0
     local completed = 0
@@ -430,17 +430,17 @@ local function main()
 
     for index, group in ipairs(groups) do
         if progress:isCanceled() then
-            failure = '用户取消'
+            failure = LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text027=Canceled by user'
             log('RUN_STOP index=%d reason=user_canceled_before_group', index)
             break
         end
 
         progress:setPortionComplete(index - 1, #groups)
-        progress:setCaption(string.format('第 %d/%d 组：选择 %s', index, #groups, group[1].name))
+        progress:setCaption(string.format(LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text028=Group %d/%d: selecting %s', index, #groups, group[1].name))
         log('GROUP_START index=%d count=%d first=%s last=%s', index, #group, group[1].name, group[#group].name)
 
         if not selectGroupAndWait(catalog, group) then
-            failure = string.format('第 %d 组照片选择失败', index)
+            failure = string.format(LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text029=Could not select photos for group %d', index)
             log('GROUP_FAIL index=%d stage=selection actual=%s', index, selectionNames(catalog))
             break
         end
@@ -448,7 +448,7 @@ local function main()
 
         local before, baselineCount = dngSnapshot(group[1].folder)
         log('GROUP_DNG_BASELINE index=%d folder=%s count=%d', index, group[1].folder, baselineCount)
-        progress:setCaption(string.format('第 %d/%d 组：提交 Lightroom HDR', index, #groups))
+        progress:setCaption(string.format(LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text030=Group %d/%d: submitting Lightroom HDR', index, #groups))
 
         LrTasks.sleep(0.3)
         local helperStarted = LrDate.currentTime()
@@ -456,7 +456,7 @@ local function main()
         local helperElapsed = LrDate.currentTime() - helperStarted
         log('GROUP_HELPER_DONE index=%d exitCode=%s elapsed=%.3f', index, tostring(exitCode), helperElapsed)
         if exitCode ~= 0 then
-            failure = string.format('第 %d 组 helper 返回 %s：%s', index, tostring(exitCode), helperExitReason(exitCode))
+            failure = string.format(LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text031=Group %d helper returned %s: %s', index, tostring(exitCode), helperExitReason(exitCode))
             log('GROUP_FAIL index=%d stage=helper exitCode=%s reason=%s', index, tostring(exitCode), helperExitReason(exitCode))
             break
         end
@@ -465,9 +465,9 @@ local function main()
         local dngPath, waitError, waitElapsed = waitForNewDng(group[1].folder, before, progress, index, #groups)
         if not dngPath then
             if waitError == 'canceled' then
-                failure = string.format('等待第 %d 组 DNG 时用户取消', index)
+                failure = string.format(LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text032=Canceled while waiting for group %d DNG', index)
             else
-                failure = string.format('第 %d 组等待 DNG 超过 %.0f 秒', index, waitElapsed)
+                failure = string.format(LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text033=Group %d DNG wait exceeded %.0f seconds', index, waitElapsed)
             end
             log('GROUP_FAIL index=%d stage=wait_dng reason=%s elapsed=%.3f', index, tostring(waitError), waitElapsed)
             break
@@ -491,9 +491,9 @@ local function main()
 
     if completed == #groups then
         LrDialogs.message(
-            'HDR 批处理完成',
+            LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text034=HDR batch complete',
             string.format(
-                '已完成 %d/%d 组，并在磁盘上检测到对应的新 DNG。\n\n源照片未删除。\n日志：%s',
+                LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text035=Completed %d/%d groups and detected their new DNG files on disk.^n^nSource photos were not deleted.^nLog: %s',
                 completed,
                 #groups,
                 logPath
@@ -502,10 +502,10 @@ local function main()
         )
     else
         LrDialogs.message(
-            'HDR 批处理已停止',
+            LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text036=HDR batch stopped',
             string.format(
-                '%s\n\n已提交 %d/%d 组，检测到新 DNG %d/%d 组。没有继续提交后续组。\n\n请查看日志：\n%s\n%s',
-                tostring(failure or '未知原因'),
+                LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text037=%s^n^nSubmitted %d/%d groups; detected new DNGs for %d/%d groups. No further groups were submitted.^n^nCheck the logs:^n%s^n%s',
+                tostring(failure or LOC '$$$/ThinkerQAQ/LightroomAutoHDRv2/Text038=Unknown reason'),
                 submitted,
                 #groups,
                 completed,

@@ -6,7 +6,7 @@ local LrLogger = import 'LrLogger'
 local LrPathUtils = import 'LrPathUtils'
 local LrTasks = import 'LrTasks'
 
-local PLUGIN_VERSION = '1.1.0'
+local PLUGIN_VERSION = '1.1.1'
 local COLLECTION_SET_NAME = '合并原片清理助手'
 local LOG_PATH = LrPathUtils.child(_PLUGIN.path, 'MergeCleanup.log')
 local AUTO_HDR_FOLDER = LrPathUtils.child(
@@ -498,7 +498,7 @@ local function shortKeepList(names)
     local shown = math.min(#names, 8)
     for index = 1, shown do lines[#lines + 1] = '  • ' .. names[index] end
     if #names > shown then
-        lines[#lines + 1] = string.format('  …另有 %d 个合成结果', #names - shown)
+        lines[#lines + 1] = string.format(LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text002=  ...and %d more merged results', #names - shown)
     end
     return table.concat(lines, '\n')
 end
@@ -537,7 +537,7 @@ LrTasks.startAsyncTask(function()
 
     if #selected == 0 then
         logEvent('WARN', 'run', 'abort_no_selection', { durationMs = durationMs(runStarted) })
-        LrDialogs.message('合并原片清理助手', '请先选中合成结果及其原片，或一个/多个真实堆栈。', 'info')
+        LrDialogs.message(LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text016=Merged Source Cleanup', LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text003=Select merged results and their source photos, or one or more real stacks.', 'info')
         return
     end
 
@@ -554,7 +554,7 @@ LrTasks.startAsyncTask(function()
 
     if #candidates == 0 then
         local detail = string.format(
-            '没有找到可安全处理的原片。\n\n当前选择：%d 张\n其中未建立文件夹堆栈：%d 张\n真实堆栈无合成结果：%d 组\n真实堆栈原片少于 2 张：%d 组\nAutoHDR 记录与当前选择不完整：%d 组\n元数据找不到首张原片：%d 个结果\n元数据闭环不安全：%d 个结果\n\n请同时选中 HDR DNG 和它对应的全部 RAW 原片；批量处理时先 Ctrl+A 全选当前复核收藏集。\n\n日志：%s',
+            LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text004=No source photos could be safely prepared.^n^nSelected: %d^nNot in folder stacks: %d^nStacks without a merged result: %d^nStacks with fewer than 2 sources: %d^nIncomplete AutoHDR records: %d^nResults without an anchor source: %d^nUnsafe metadata matches: %d^n^nSelect the HDR DNG and all its RAW sources together. For a batch, use Ctrl+A in the current review collection.^n^nLog: %s',
             #selected,
             skipped.notStacked,
             skipped.stackNoResult,
@@ -565,12 +565,12 @@ LrTasks.startAsyncTask(function()
             LOG_PATH
         )
         logEvent('INFO', 'run', 'done_no_candidates', { durationMs = durationMs(runStarted) })
-        LrDialogs.message('扫描完成', detail, 'info')
+        LrDialogs.message(LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text005=Scan complete', detail, 'info')
         return
     end
 
     local message = string.format(
-        '识别到 %d 组、%d 张候选原片。\n\n证据来源：真实堆栈 %d 组；AutoHDR 精确记录 %d 组；元数据兜底 %d 组。\n\n将保留：\n%s\n\n下一步只创建“待删除”收藏集，不会立即删除文件。是否继续？',
+        LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text006=Found %d groups and %d candidate source photos.^n^nEvidence: %d real stacks; %d exact AutoHDR records; %d metadata matches.^n^nMerged results to keep:^n%s^n^nThe next step only creates a review collection. No files are deleted yet. Continue?',
         groupCount,
         #candidates,
         methods.stack,
@@ -578,20 +578,20 @@ LrTasks.startAsyncTask(function()
         methods.metadata,
         shortKeepList(keepNames)
     )
-    if LrDialogs.confirm('请复核扫描结果', message, '创建待删除收藏集', '取消') ~= 'ok' then
+    if LrDialogs.confirm(LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text007=Review scan results', message, LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text008=Create review collection', LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text001=Cancel') ~= 'ok' then
         logEvent('INFO', 'run', 'user_canceled_review', { durationMs = durationMs(runStarted) })
         return
     end
 
     local timestamp = LrDate.timeToUserFormat(LrDate.currentTime(), '%Y-%m-%d %H%M%S')
-    local collectionName = '待删除原片 ' .. timestamp
+    local collectionName = LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text009=Source photos to review ' .. timestamp
     local createdCollection
     local writeStarted = LrDate.currentTime()
     logEvent('INFO', 'collection.create', 'start', {
         candidateCount = #candidates,
         collection = collectionName,
     })
-    local status, err = catalog:withWriteAccessDo('创建合并原片待删除收藏集', function()
+    local status, err = catalog:withWriteAccessDo(LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text010=Create source review collection', function()
         local collectionSet = catalog:createCollectionSet(COLLECTION_SET_NAME, nil, true)
         createdCollection = catalog:createCollection(collectionName, collectionSet, false)
         createdCollection:addPhotos(candidates)
@@ -603,7 +603,7 @@ LrTasks.startAsyncTask(function()
 
     if status ~= 'executed' then
         logEvent('ERROR', 'run', 'failed_collection', { durationMs = durationMs(runStarted), error = err })
-        LrDialogs.message('创建失败', tostring(err or status) .. '\n\n日志：' .. LOG_PATH, 'critical')
+        LrDialogs.message(LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text011=Could not create collection', tostring(err or status) .. LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text018=^n^nLog: ' .. LOG_PATH, 'critical')
         return
     end
 
@@ -622,12 +622,12 @@ LrTasks.startAsyncTask(function()
     })
 
     LrDialogs.message(
-        '待删除原片已准备好',
+        LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text012=Source photos ready for review',
         string.format(
-            '已打开“%s”，其中有 %d 张候选原片。%s\n\n请先复核缩略图；确认无误后按：\nCtrl+Alt+Shift+Backspace\n\n注意是 Backspace（退格键），不是 Del/Delete。然后在 Lightroom 确认框中选择“从磁盘删除”，文件会进入 Windows 回收站。\n\n日志：%s',
+            LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text013=Opened "%s" with %d candidate source photos.%s^n^nReview the thumbnails. Only when you are certain, press:^nCtrl+Alt+Shift+Backspace^n^nUse Backspace, not Del/Delete. In Lightroom confirmation dialog choose Delete from Disk; files go to the Windows Recycle Bin.^n^nLog: %s',
             collectionName,
             #candidates,
-            selectionOk and '\n候选原片已全部选中。' or '\n自动全选未成功，请先按 Ctrl+A。',
+            selectionOk and LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text014=^nAll candidate source photos are selected.' or LOC '$$$/ThinkerQAQ/LightroomMergeCleanup/Text015=^nAutomatic selection failed; press Ctrl+A first.',
             LOG_PATH
         ),
         'warning'
