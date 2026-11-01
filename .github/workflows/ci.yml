@@ -20,7 +20,7 @@ jobs:
         run: |
           test -s LICENSE
           test -s README.md
-          test -s README.zh-CN.md
+          test -s README_ZH.md
           test -s LightroomAutoHDRv2.lrplugin/TranslatedStrings_zh_cn.txt
           test -s LightroomMergeCleanup.lrplugin/TranslatedStrings_zh_cn.txt
           git diff --check
