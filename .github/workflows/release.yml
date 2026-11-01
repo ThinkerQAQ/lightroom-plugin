@@ -17,7 +17,7 @@ jobs:
           & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe "/out:$PWD\LightroomAutoHDRv2.lrplugin\AutoHDRInput.exe" "$PWD\LightroomAutoHDRv2.lrplugin\AutoHDRInput.cs"
           if ($LASTEXITCODE -ne 0) { throw 'C# helper compilation failed' }
           New-Item -ItemType Directory -Path staging,dist | Out-Null
-          Copy-Item LICENSE,README.md,README_ZH.md,SECURITY.md staging
+          Copy-Item LICENSE,README.md,README_ZH.md staging
           Copy-Item LightroomAutoHDRv2.lrplugin,LightroomMergeCleanup.lrplugin staging -Recurse
           Get-ChildItem staging -Recurse -File | Where-Object { $_.Extension -eq '.log' -or $_.Name -match 'mapping|last.run' } | Remove-Item
           $archive = "lightroom-plugin-$env:GITHUB_REF_NAME.zip"
